@@ -2,8 +2,9 @@
 
 const fs = require('fs')
 const path = require('path')
-const { getConsoleFromSystem } = require('./consoleMapping')
 
+const { getConsoleFromSystem } = require('./consoleMapping')
+const { normalizeString } = require('./utils')
 const SYSTEMS_TO_SCRAPE = [
   'Nintendo - Game Boy',
   'Nintendo - Game Boy Color',
@@ -54,7 +55,7 @@ const SYSTEMS_TO_SCRAPE = [
   'Magnavox - Odyssey2'
 ]
 
-const OUTPUT_DIR = path.resolve('./output')
+const OUTPUT_DIR = path.resolve('./output/covers')
 const OWNER = 'libretro-thumbnails'
 const ROOT_REPO = 'libretro-thumbnails'
 
@@ -184,6 +185,7 @@ async function scrapeSystem(systemName) {
     const titleImage = pickBest(buckets.titles.filter((x) => x.key === key))
 
     output.push({
+      titleNormalized: normalizeString(key),
       title: key,
       size: String(box?.size || logo?.size || snaps[0]?.size || 0),
       logo: logo ? rawUrl(OWNER, systemRepo, commitSha, logo.path) : '',

@@ -57,5 +57,5 @@ export GITHUB_TOKEN=your_token_here
 then run the script with node (18+ recommended)
 
 ```
-node scraper.js
+node covers-scraper.js
 ```

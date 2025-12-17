@@ -17,6 +17,7 @@ const CONSOLE_MAPPING = {
   'Nintendo - Nintendo DS': 'nds',
   'Nintendo - Nintendo 3DS': '3ds',
   'Nintendo - Virtual Boy': 'vb',
+  'Nintendo - Switch': 'switch',
 
   // Sony
   'Sony - PlayStation': 'ps1',
