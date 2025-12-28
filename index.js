@@ -1,9 +1,9 @@
-require('dotenv').config() 
+require("dotenv").config();
 const fs = require("fs-extra");
 const path = require("path");
 const { normalizeString, wordSimilarity } = require("./utils/utils");
-const { LocalScrapeInfos, WikipediaScrapeInfos } = require("./scrapers/infos");
-const { LibretroScrapeCovers, NswpediaScrapeCovers } = require("./scrapers/covers");
+const { LocalScrapeInfos, WikipediaScrapeInfos, RetroCatalogsInfos } = require("./scrapers/infos");
+const { LibretroScrapeCovers, NswpediaScrapeCovers, PushSquareCovers } = require("./scrapers/covers");
 const { CONSOLES } = require("./constants/console-mapping");
 const { CONSOLE_LOGOS } = require("./constants/console-logos");
 
@@ -114,13 +114,13 @@ const SCRAPERS_SETTINGS = {
 
   // PlayStation 3 — Sony (2006)
   [CONSOLES.SONY_PLAYSTATION_3]: {
-    covers: [LibretroScrapeCovers],
+    covers: [LibretroScrapeCovers, PushSquareCovers],
     infos: [WikipediaScrapeInfos],
   },
 
   // PS Vita — Sony (2011)
   [CONSOLES.SONY_PLAYSTATION_VITA]: {
-    covers: [LibretroScrapeCovers],
+    covers: [LibretroScrapeCovers, PushSquareCovers],
     infos: [WikipediaScrapeInfos],
   },
 
@@ -258,13 +258,12 @@ async function run() {
   await fs.mkdirSync(coversPath, { recursive: true });
   var args = process.argv.slice(2);
 
-  const shouldSkipCache = args.some((arg)=>arg.includes("--skip-cache"));
-  const allowedConsolesStr = args.find((arg)=>arg.startsWith("--consoles="));
+  const shouldSkipCache = args.some((arg) => arg.includes("--skip-cache"));
+  const allowedConsolesStr = args.find((arg) => arg.startsWith("--consoles="));
   let allowedConsoleList = [];
   if (allowedConsolesStr) {
-      allowedConsoleList = allowedConsolesStr.replace("--consoles=", "").split(",");
+    allowedConsoleList = allowedConsolesStr.replace("--consoles=", "").split(",");
   }
-
 
   console.log("Main scraper: Retrieving covers");
   for (const consoleSlug of Object.keys(SCRAPERS_SETTINGS)) {
@@ -282,28 +281,27 @@ async function run() {
     };
     const coverFileName = path.join(coversPath, `${consoleSlug}.json`);
     let coverCache = null;
-    if (fs.existsSync(coverFileName)) {
+    if (fs.existsSync(coverFileName) && !shouldSkipCache) {
       coverCache = JSON.parse(fs.readFileSync(coverFileName, "utf-8"));
       allCovers = coverCache;
     }
-    const useCache = !coverCache || shouldSkipCache
-    if (useCache) {
-      for (const scraper of coverScrapers) {
-        const covers = await scraper(consoleSlug);
-        if (!covers || covers.length === 0) {
-          console.warn(`Main scraper: ⚠ No covers found for console slug: ${consoleSlug}`);
-          continue;
-        }
-        for (const cover of covers) {
-          const key = normalizeString(cover.title || cover.normalizedTitle);
-          if (!allCovers[key] || !allCovers[key].portrait) {
-            allCovers[key] = cover;
-          }
+
+    const useCache = coverCache && !shouldSkipCache;
+    for (const scraper of coverScrapers) {
+      const covers = await scraper(consoleSlug);
+      if (!covers || covers.length === 0) {
+        console.warn(`Main scraper: ⚠ No covers found for console slug: ${consoleSlug}`);
+        continue;
+      }
+      for (const cover of covers) {
+        const key = normalizeString(cover.title || cover.normalizedTitle);
+        if (!allCovers[key] || !allCovers[key].portrait) {
+          allCovers[key] = cover;
         }
       }
-      await fs.writeJson(coverFileName, allCovers);
     }
-    console.log(`Main scraper: ✔ Retrieved ${Object.keys(allCovers).length} covers for console slug: ${consoleSlug} ${useCache ? '(from cache)' : ''}`);
+    await fs.writeJson(coverFileName, allCovers);
+    console.log(`Main scraper: ✔ Retrieved ${Object.keys(allCovers).length} covers for console slug: ${consoleSlug} ${useCache ? "(from cache)" : ""}`);
     for (const scraper of infoScrapers) {
       const infos = await scraper(consoleSlug);
       if (!infos || !infos?.games || infos?.games?.length === 0) {
@@ -315,7 +313,7 @@ async function run() {
       }
       for (const game of infos.games) {
         const key = normalizeString(game.slug);
-        if(!key){
+        if (!key) {
           continue;
         }
         if (!allGames[key]) {
@@ -334,13 +332,13 @@ async function run() {
     console.log(`Main scraper: ✔ Retrieved ${allInfos.games.length} infos for console slug: ${consoleSlug}`);
     // Now match covers to infos
     const enrichedGames = allInfos.games.map((game) => {
-      const bestCover = findBestCover(Object.values(allCovers),normalizeString(game.name) , 0.7);
+      const bestCover = findBestCover(Object.values(allCovers), normalizeString(game.name), 0.7);
       return {
         ...game,
         portrait: bestCover ? bestCover.portrait || bestCover.image || null : null,
         logo: bestCover ? bestCover.logo || null : null,
         titleImage: bestCover ? bestCover.title_image || null : null,
-        gameplayCovers: bestCover ? bestCover.gameplay_covers || [] : [],
+        gameplayCovers: [],
       };
     });
     if (CONSOLE_LOGOS[consoleSlug]) {

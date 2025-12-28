@@ -131,8 +131,18 @@ function getConsoleFromSystem(systemName) {
   return CONSOLE_MAPPING[systemName] || 'unknown'
 }
 
+function getConsoleNameFromSlug(consoleSlug) {
+  for (const [name, slug] of Object.entries(CONSOLE_MAPPING)) {
+    if (slug === consoleSlug) {
+      return name;
+    }
+  }
+  return "Unknown";
+}
+
 module.exports = {
   CONSOLE_MAPPING,
   CONSOLES,
-  getConsoleFromSystem
+  getConsoleFromSystem,
+  getConsoleNameFromSlug
 }
