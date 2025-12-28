@@ -2,17 +2,16 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const fs = require("fs-extra");
 const path = require("path");
+const { normalizeString } = require('../../utils/utils');
+const { CONSOLES } = require("../../constants/console-mapping");
 
 const BASE_URL = "https://nswpedia.com/nintendo-switch-roms/page";
 const START_PAGE = 1;
 const END_PAGE = 115;
 
-const OUTPUT_PATH = path.join("output", "covers", "switch.json");
-const { normalizeString } = require('./utils')
-
 async function scrapePage(page) {
   const url = `${BASE_URL}/${page}`;
-  console.log(`Scraping: ${url}`);
+  console.log(`nswpedia: Scraping: ${url}`);
 
   const { data: html } = await axios.get(url, {
     headers: {
@@ -56,18 +55,23 @@ async function scrapePage(page) {
   return games;
 }
 
-async function run() {
+async function Scrape(consoleSlug) {
+  if (consoleSlug !== CONSOLES.NINTENDO_SWITCH) {
+    console.error(`This scraper only supports the 'switch' console slug.`);
+    return;
+  }
   const allGames = [];
 
   for (let page = START_PAGE; page <= END_PAGE; page++) {
     const pageGames = await scrapePage(page);
     allGames.push(...pageGames);
   }
+  console.log(`nswpedia-covers: ✔ ${allGames.length} games`);
 
-  await fs.ensureDir(path.dirname(OUTPUT_PATH));
-  await fs.writeJson(OUTPUT_PATH, allGames, { spaces: 2 });
+  return allGames;
 
-  console.log(`✅ Saved ${allGames.length} games to ${OUTPUT_PATH}`);
 }
 
-run().catch(console.error);
+module.exports = {
+  Scrape
+};

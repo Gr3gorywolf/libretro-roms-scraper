@@ -2,58 +2,57 @@
 
 const fs = require('fs')
 const path = require('path')
-
-const { getConsoleFromSystem } = require('./consoleMapping')
-const { normalizeString } = require('./utils')
-const SYSTEMS_TO_SCRAPE = [
-  'Nintendo - Game Boy',
-  'Nintendo - Game Boy Color',
-  'Nintendo - Game Boy Advance',
-  'Nintendo - Nintendo Entertainment System',
-  'Nintendo - Super Nintendo Entertainment System',
-  'Nintendo - Nintendo 64',
-  'Nintendo - GameCube',
-  'Nintendo - Wii',
-  'Nintendo - Wii U',
-  'Nintendo - Nintendo DS',
-  'Nintendo - Nintendo 3DS',
-  'Nintendo - Virtual Boy',
+console.log(process.env.GITHUB_TOKEN);
+const { getConsoleFromSystem, CONSOLES } = require('../../constants/console-mapping')
+const { normalizeString } = require('../../utils/utils')
+const SYSTEMS_TO_SCRAPE = {
+  [CONSOLES.NINTENDO_GAME_BOY]:'Nintendo - Game Boy',
+  [CONSOLES.NINTENDO_GAME_BOY_COLOR]:'Nintendo - Game Boy Color',
+  [CONSOLES.NINTENDO_GAME_BOY_ADVANCE]:'Nintendo - Game Boy Advance',
+  [CONSOLES.NINTENDO_NES]:'Nintendo - Nintendo Entertainment System',
+  [CONSOLES.NINTENDO_SNES]:'Nintendo - Super Nintendo Entertainment System',
+  [CONSOLES.NINTENDO_64]:'Nintendo - Nintendo 64',
+  [CONSOLES.NINTENDO_GAMECUBE]:'Nintendo - GameCube',
+  [CONSOLES.NINTENDO_WII]:'Nintendo - Wii',
+  [CONSOLES.NINTENDO_WII_U]:'Nintendo - Wii U',
+  [CONSOLES.NINTENDO_DS]:'Nintendo - Nintendo DS',
+  [CONSOLES.NINTENDO_3DS]:'Nintendo - Nintendo 3DS',
+  [CONSOLES.NINTENDO_VIRTUAL_BOY]:'Nintendo - Virtual Boy',
 
   // Sony
-  'Sony - PlayStation',
-  'Sony - PlayStation 2',
-  'Sony - PlayStation 3',
-  'Sony - PlayStation Portable',
-  'Sony - PlayStation Vita',
+  [CONSOLES.SONY_PLAYSTATION]:'Sony - PlayStation',
+  [CONSOLES.SONY_PLAYSTATION_2]:'Sony - PlayStation 2',
+  [CONSOLES.SONY_PLAYSTATION_3]:'Sony - PlayStation 3',
+  [CONSOLES.SONY_PSP]:'Sony - PlayStation Portable',
+  [CONSOLES.SONY_PLAYSTATION_VITA]:'Sony - PlayStation Vita',
 
   // Sega
-  'Sega - Master System',
-  'Sega - Mega Drive - Genesis',
-  'Sega - Sega CD',
-  'Sega - 32X',
-  'Sega - Saturn',
-  'Sega - Dreamcast',
-  'Sega - Game Gear',
-
+  [CONSOLES.SEGA_MASTER_SYSTEM]:'Sega - Master System',
+  [CONSOLES.SEGA_GENESIS]:'Sega - Mega Drive - Genesis',
+  [CONSOLES.SEGA_CD]:'Sega - Sega CD',
+  [CONSOLES.SEGA_32X]:'Sega - 32X',
+  [CONSOLES.SEGA_SATURN]:'Sega - Saturn',
+  [CONSOLES.SEGA_DREAMCAST]:'Sega - Dreamcast',
+  [CONSOLES.SEGA_GAME_GEAR]:'Sega - Game Gear',
   // NEC / PC Engine
-  'NEC - PC Engine',
-  'NEC - PC Engine CD',
-  'NEC - SuperGrafx',
+  [CONSOLES.NEC_PC_ENGINE]:'NEC - PC Engine',
+  [CONSOLES.NEC_PC_ENGINE_CD]:'NEC - PC Engine CD',
+  [CONSOLES.NEC_SUPERGRAFX]:'NEC - SuperGrafx',
 
   // SNK
-  'SNK - Neo Geo',
-  'SNK - Neo Geo Pocket',
-  'SNK - Neo Geo Pocket Color',
+  [CONSOLES.SNK_NEO_GEO]:'SNK - Neo Geo',
+  [CONSOLES.SNK_NEO_GEO_POCKET]:'SNK - Neo Geo Pocket',
+  [CONSOLES.SNK_NEO_GEO_POCKET_COLOR]:'SNK - Neo Geo Pocket Color',
 
   // Commodore
-  'Commodore - 64',
-  'Commodore - Amiga',
+  [CONSOLES.COMMODORE_64]:'Commodore - 64',
+  [CONSOLES.COMMODORE_AMIGA]:'Commodore - Amiga',
   // Others
-  'Bandai - WonderSwan',
-  'Bandai - WonderSwan Color',
-  'GCE - Vectrex',
-  'Magnavox - Odyssey2'
-]
+  [CONSOLES.BANDAI_WONDERSWAN]:'Bandai - WonderSwan',
+  [CONSOLES.BANDAI_WONDERSWAN_COLOR]:'Bandai - WonderSwan Color',
+  [CONSOLES.GCE_VECTREX]:'GCE - Vectrex',
+  [CONSOLES.MAGNAVOX_ODYSSEY_2]:'Magnavox - Odyssey2'
+}
 
 const OUTPUT_DIR = path.resolve('./output/covers')
 const OWNER = 'libretro-thumbnails'
@@ -122,8 +121,13 @@ function pickBest(list) {
 
 /* -------------------- core logic -------------------- */
 
-async function scrapeSystem(systemName) {
-  console.log(`\n🔍 Scraping ${systemName}...`)
+async function Scrape(consoleSlug) {
+  const systemName = SYSTEMS_TO_SCRAPE[consoleSlug]
+  if (!systemName) {
+    console.warn(`Console slug not mapped: ${consoleSlug}`)
+    return
+  }
+  console.log(`libretro-covers:\n🔍 Scraping ${systemName}...`)
 
   const consoleEnum = getConsoleFromSystem(systemName)
   const systemRepo = systemName.replace(/ /g, '_')
@@ -200,27 +204,14 @@ async function scrapeSystem(systemName) {
 
   output.sort((a, b) => a.title.localeCompare(b.title))
 
-  if (!fs.existsSync(OUTPUT_DIR)) {
-    fs.mkdirSync(OUTPUT_DIR, { recursive: true })
-  }
-
-  const outFile = path.join(OUTPUT_DIR, `${consoleEnum}.json`)
-  fs.writeFileSync(outFile, JSON.stringify(output, null, 2))
-
-  console.log(`✔ ${output.length} games → ${outFile}`)
+ 
+  console.log(`libretro-covers: ✔ ${output.length} games`)
+  return output;
 }
 
 
-async function main() {
-  for (const system of SYSTEMS_TO_SCRAPE) {
-    try {
-      await scrapeSystem(system)
-    } catch (err) {
-      console.error(`Error on ${system}:`, err.message)
-    }
-  }
-
-  console.log('\nScraping finished')
+module.exports = {
+  Scrape
 }
 
-main()
+

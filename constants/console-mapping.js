@@ -3,6 +3,67 @@
  * to your internal console enum
  */
 
+
+const CONSOLES = {
+  // Nintendo
+  NINTENDO_GAME_BOY: 'gb',
+  NINTENDO_GAME_BOY_COLOR: 'gbc',
+  NINTENDO_GAME_BOY_ADVANCE: 'gba',
+  NINTENDO_NES: 'nes',
+  NINTENDO_SNES: 'snes',
+  NINTENDO_64: 'n64',
+  NINTENDO_GAMECUBE: 'gc',
+  NINTENDO_WII: 'wii',
+  NINTENDO_WII_U: 'wiiu',
+  NINTENDO_DS: 'nds',
+  NINTENDO_3DS: '3ds',
+  NINTENDO_VIRTUAL_BOY: 'vb',
+  NINTENDO_SWITCH: 'switch',
+
+  // Sony
+  SONY_PLAYSTATION: 'ps1',
+  SONY_PLAYSTATION_2: 'ps2',
+  SONY_PLAYSTATION_3: 'ps3',
+  SONY_PSP: 'psp',
+  SONY_PLAYSTATION_VITA: 'psvita',
+
+  // Sega
+  SEGA_MASTER_SYSTEM: 'sms',
+  SEGA_GENESIS: 'genesis',
+  SEGA_CD: 'segacd',
+  SEGA_32X: 'sega32x',
+  SEGA_SATURN: 'saturn',
+  SEGA_DREAMCAST: 'dreamcast',
+  SEGA_GAME_GEAR: 'gamegear',
+
+  // Atari
+  ATARI_2600: 'atari2600',
+  ATARI_5200: 'atari5200',
+  ATARI_7800: 'atari7800',
+  ATARI_JAGUAR: 'jaguar',
+  ATARI_LYNX: 'lynx',
+
+  // NEC / PC Engine
+  NEC_PC_ENGINE: 'pce',
+  NEC_PC_ENGINE_CD: 'pcecd',
+  NEC_SUPERGRAFX: 'supergrafx',
+
+  // SNK
+  SNK_NEO_GEO: 'neogeo',
+  SNK_NEO_GEO_POCKET: 'ngp',
+  SNK_NEO_GEO_POCKET_COLOR: 'ngpc',
+
+  // Commodore
+  COMMODORE_64: 'c64',
+  COMMODORE_AMIGA: 'amiga',
+
+  // Others
+  BANDAI_WONDERSWAN: 'wonderswan',
+  BANDAI_WONDERSWAN_COLOR: 'wonderswancolor',
+  GCE_VECTREX: 'vectrex',
+  MAGNAVOX_ODYSSEY_2: 'odyssey2'
+}
+
 const CONSOLE_MAPPING = {
   // Nintendo
   'Nintendo - Game Boy': 'gb',
@@ -72,5 +133,6 @@ function getConsoleFromSystem(systemName) {
 
 module.exports = {
   CONSOLE_MAPPING,
+  CONSOLES,
   getConsoleFromSystem
 }
