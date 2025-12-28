@@ -33,5 +33,9 @@ const Scrape = async (slug) => {
 };
 
 module.exports = {
-  Scrape
+  Scrape,
+   meta:{
+    name: 'Local Infos Scraper',
+    author: 'gr3'
+  }
 }

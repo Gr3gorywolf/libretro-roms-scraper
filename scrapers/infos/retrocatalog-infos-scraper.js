@@ -15,4 +15,8 @@ const Scrape = async (consoleSlug) => {
 
 module.exports = {
   Scrape,
+   meta:{
+    name: 'Retrocatalog Infos & covers',
+    author: 'gr3'
+  }
 };

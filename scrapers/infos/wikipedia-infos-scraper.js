@@ -160,15 +160,18 @@ const Scrape = async (consoleSlug) => {
   for (let url of urls) {
     var pageData = await scrapeWikipediaPage(consoleSlug, url);
     resultData = {
-        console: pageData.console,
-        games: [...(resultData.games || []), ...pageData.games]
-    }
+      console: pageData.console,
+      games: [...(resultData.games || []), ...pageData.games],
+    };
   }
-    console.log(`wikipedia-infos: ✔ ${resultData.games.length} games for console slug: ${consoleSlug}`);
-    return resultData;
+  console.log(`wikipedia-infos: ✔ ${resultData.games.length} games for console slug: ${consoleSlug}`);
+  return resultData;
 };
 
-
 module.exports = {
-    Scrape
-}
+  Scrape,
+  meta: {
+    name: "Wikipedia Infos",
+    author: "gr3",
+  },
+};

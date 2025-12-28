@@ -23,8 +23,7 @@ async function scrapePage(consoleId,consoleSlug,  page = 1) {
   $("li.item.item-game").each((_, el) => {
     const element = $(el);
 
-    const title = element.find("a.title.accent-hover span").first().text().trim();
-    const consoleText = element.find(".subtitle").text().trim();
+    const title = element.find("a.title.accent-hover span").first().text().trim(); 
     const img = element.find(".cover img").attr("src") || "";
 
     const item = {
@@ -63,4 +62,8 @@ async function Scrape(consoleSlug) {
 
 module.exports = {
   Scrape,
+  meta:{
+    name: 'Pushsquare Covers',
+    author: 'gr3'
+  }
 };

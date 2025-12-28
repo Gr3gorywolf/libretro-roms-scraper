@@ -104,17 +104,16 @@ async function Scrape(consoleSlug, type = "cover") {
 
   const gamesSearchList = JSON.parse(gamesMatch[1]);
 
-  
   const consoleSlugs = {};
   for (let [key, value] of Object.entries(CONSOLE_MAP)) {
     var slug = value.split(",")[0];
-    if(slug == "gamecube"){
+    if (slug == "gamecube") {
       slug = "gc";
     }
-    if(slug == "ds"){
+    if (slug == "ds") {
       slug = "nds";
     }
-    if(slug == "dreamcast"){
+    if (slug == "dreamcast") {
       slug = "dc";
     }
     consoleSlugs[slug] = key;
@@ -135,4 +134,9 @@ async function Scrape(consoleSlug, type = "cover") {
 
 module.exports = {
   Scrape,
-}
+  meta: {
+    hasCovers: true,
+    name: "Retrocatalog Covers & infos",
+    author: "gr3",
+  },
+};

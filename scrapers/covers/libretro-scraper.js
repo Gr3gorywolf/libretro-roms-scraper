@@ -211,7 +211,11 @@ async function Scrape(consoleSlug) {
 
 
 module.exports = {
-  Scrape
+  Scrape,
+  meta:{
+    name: 'Libretro Covers',
+    author: 'gr3'
+  }
 }
 
 

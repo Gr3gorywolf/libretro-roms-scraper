@@ -73,5 +73,9 @@ async function Scrape(consoleSlug) {
 }
 
 module.exports = {
-  Scrape
+  Scrape,
+  meta:{
+    name: 'Nswpedia Covers',
+    author: 'gr3'
+  }
 };
