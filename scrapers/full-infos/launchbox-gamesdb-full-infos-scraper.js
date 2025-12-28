@@ -126,10 +126,7 @@ async function Scrape(consoleSlug) {
 
   const hero = $(".platform-hero.heading");
   result.console.name = hero.find("h1").text().trim();
-  result.console.slug = result.console.name
-    .toLowerCase()
-    .replace(/\s+/g, "-")
-    .replace(/[^\w-]/g, "");
+  result.console.slug = consoleSlug;
 
   result.console.description = hero.find("p").text().trim();
 
