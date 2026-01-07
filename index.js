@@ -7,6 +7,7 @@ const { LibretroScrapeCovers, NswpediaScrapeCovers, PushSquareCovers } = require
 const { CONSOLES } = require("./constants/console-mapping");
 const { CONSOLE_LOGOS } = require("./constants/console-logos");
 const { LaunchboxGamesDBFullInfos } = require("./scrapers/full-infos");
+const { DaijishowScrapeIntents } = require("./scrapers/intents");
 
 const SCRAPERS_SETTINGS = {
   // ================================
@@ -255,15 +256,24 @@ function findBestCover(romCovers, normalizedTitle, threshold = 0.8) {
 async function run() {
   const coversPath = path.join(__dirname, "output", "covers");
   const infosPath = path.join(__dirname, "output", "infos");
+  const intentsPath = path.join(__dirname, "output", "intents");
   await fs.mkdirSync(infosPath, { recursive: true });
   await fs.mkdirSync(coversPath, { recursive: true });
+  await fs.mkdirSync(intentsPath, { recursive: true });
   var args = process.argv.slice(2);
-
+  const shouldScrapeIntents = args.some((arg) => arg.includes("--intents"));
   const shouldSkipCache = args.some((arg) => arg.includes("--skip-cache"));
   const allowedConsolesStr = args.find((arg) => arg.startsWith("--consoles="));
   let allowedConsoleList = [];
   if (allowedConsolesStr) {
     allowedConsoleList = allowedConsolesStr.replace("--consoles=", "").split(",");
+  }
+  if (shouldScrapeIntents) {
+    console.log("Main scraper: Retrieving intents");
+    var intentsFile = await DaijishowScrapeIntents.Scrape();
+    console.log("Main scraper: Saving intents");
+    await fs.writeJson(intentsPath + "/daijishou-intents.json", intentsFile);
+    return;
   }
 
   for (const consoleSlug of Object.keys(SCRAPERS_SETTINGS)) {
