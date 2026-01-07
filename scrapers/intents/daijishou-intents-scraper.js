@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { VALID_COMPRESSED_EXTENSIONS } = require("../../constants/files");
 
 
 const OWNER = 'TapiocaFox'
@@ -69,14 +70,16 @@ function build(fileContent) {
 
   for (const player of json.playerList) {
     const parsed = parseAmArguments(player.amStartArguments);
-
+    const requireExtraction = !VALID_COMPRESSED_EXTENSIONS.some(ext => player.acceptedFilenameRegex.includes(ext));
     result[platformId].push({
       uniqueId: player.uniqueId,
       package: parsed.package,
       activity: parsed.activity,
       action: parsed.action || "android.intent.action.VIEW",
       data: parsed.data,
-      extras: parsed.extras
+      extras: parsed.extras,
+      requireExtraction: requireExtraction,
+      acceptedFilenameRegex: player.acceptedFilenameRegex
     });
   }
 
