@@ -1,34 +1,39 @@
 const fs = require("fs");
 const { VALID_COMPRESSED_EXTENSIONS } = require("../../constants/files");
+const { type } = require("os");
 
-
-const OWNER = 'TapiocaFox'
-const ROOT_REPO = 'Daijishou'
-const token = process.env.GITHUB_TOKEN
+const OWNER = "TapiocaFox";
+const ROOT_REPO = "Daijishou";
+const token = process.env.GITHUB_TOKEN;
 const headers = {
-  Accept: 'application/vnd.github+json',
-  'User-Agent': 'libretro-thumb-scraper',
-  ...(token ? { Authorization: `Bearer ${token}` } : {})
-}
+  Accept: "application/vnd.github+json",
+  "User-Agent": "libretro-thumb-scraper",
+  ...(token ? { Authorization: `Bearer ${token}` } : {}),
+};
 
 async function gh(url) {
-  const res = await fetch(url, { headers })
+  const res = await fetch(url, { headers });
   if (!res.ok) {
-    const txt = await res.text()
-    throw new Error(`${res.status} ${res.statusText}: ${txt}`)
+    const txt = await res.text();
+    throw new Error(`${res.status} ${res.statusText}: ${txt}`);
   }
-  return res.json()
+  return res.json();
 }
 
 function parseAmArguments(am) {
-  const lines = am.split("\n").map(l => l.trim()).filter(Boolean);
+  const lines = am
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
 
   let payload = {
     package: null,
     activity: null,
     action: null,
     data: null,
-    extras: {}
+    category: null,
+    type: null,
+    extras: {},
   };
 
   for (const line of lines) {
@@ -38,6 +43,11 @@ function parseAmArguments(am) {
       const [pkg, activity] = comp.split("/");
       payload.package = pkg;
       payload.activity = comp.includes("/") ? comp : null;
+      //patch for ./ activities
+      let activityPart = `${pkg}/.`;
+      if (payload.activity?.startsWith(activityPart)) {
+        payload.activity = `${pkg}/${pkg}.${payload.activity.replace(activityPart, "")}`;
+      }
     }
 
     // -a <intent action>
@@ -48,6 +58,10 @@ function parseAmArguments(am) {
     // -d <data>
     else if (line.startsWith("-d ")) {
       payload.data = line.replace("-d ", "").trim();
+    } else if (line.startsWith("-t ")) {
+      payload.type = line.replace("-t ", "").trim();
+    } else if (line.startsWith("-c ")) {
+      payload.category = line.replace("-c ", "").trim();
     }
 
     // -e <key> <value>
@@ -70,7 +84,7 @@ function build(fileContent) {
 
   for (const player of json.playerList) {
     const parsed = parseAmArguments(player.amStartArguments);
-    const requireExtraction = !VALID_COMPRESSED_EXTENSIONS.some(ext => player.acceptedFilenameRegex.includes(ext));
+    const requireExtraction = !VALID_COMPRESSED_EXTENSIONS.some((ext) => player.acceptedFilenameRegex.includes(ext));
     result[platformId].push({
       uniqueId: player.uniqueId,
       package: parsed.package,
@@ -78,39 +92,36 @@ function build(fileContent) {
       action: parsed.action || "android.intent.action.VIEW",
       data: parsed.data,
       extras: parsed.extras,
+      type: parsed.type,
+      category: parsed.category,
       requireExtraction: requireExtraction,
-      acceptedFilenameRegex: player.acceptedFilenameRegex
+      acceptedFilenameRegex: player.acceptedFilenameRegex,
     });
   }
 
   return result;
 }
 
-async function Scrape(){ 
-
-     const platformsThree = await gh(
-    `https://api.github.com/repos/${OWNER}/${ROOT_REPO}/contents/platforms?ref=main`
-    )
-    console.log("platformsThree:", platformsThree);
-    const forbiddenFiles = [".py","index.json"]
-    var results = {};
-    for (const platform of platformsThree) {
-        if(forbiddenFiles.some(ext => platform.name.endsWith(ext))) continue;
-        const fileContent = await gh(
-            `https://api.github.com/repos/${OWNER}/${ROOT_REPO}/contents/platforms/${platform.name}?ref=main`
-        )
-        const buff = Buffer.from(fileContent.content, 'base64');
-        const text = buff.toString('utf-8');
-        results = {...results, ...build(text)};
-    }
-    console.log("results:", results);
-    return results;
+async function Scrape() {
+  const platformsThree = await gh(`https://api.github.com/repos/${OWNER}/${ROOT_REPO}/contents/platforms?ref=main`);
+  console.log("platformsThree:", platformsThree);
+  const forbiddenFiles = [".py", "index.json"];
+  var results = {};
+  for (const platform of platformsThree) {
+    if (forbiddenFiles.some((ext) => platform.name.endsWith(ext))) continue;
+    const fileContent = await gh(`https://api.github.com/repos/${OWNER}/${ROOT_REPO}/contents/platforms/${platform.name}?ref=main`);
+    const buff = Buffer.from(fileContent.content, "base64");
+    const text = buff.toString("utf-8");
+    results = { ...results, ...build(text) };
+  }
+  console.log("results:", results);
+  return results;
 }
 
 module.exports = {
   Scrape,
-   meta: {
+  meta: {
     name: "Daijishou Intents",
     author: "gr3",
   },
-}
+};
