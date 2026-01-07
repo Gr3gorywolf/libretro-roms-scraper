@@ -2,6 +2,7 @@ const axios = require("axios");
 const cheerio = require("cheerio");
 const { CONSOLES } = require("../../constants/console-mapping");
 const { normalizeString, normalizeDate } = require("../../utils/utils");
+const { CONSOLE_LOGOS } = require("../../constants/console-logos");
 
 const BASE = "https://gamesdb.launchbox-app.com/platforms/games";
 const CONSOLE_MAPPINGS = {
@@ -118,6 +119,7 @@ async function Scrape(consoleSlug) {
     console: {
       name: "",
       slug: "",
+      logoUrl: CONSOLE_LOGOS[consoleSlug],
       description: "",
     },
     games: [],

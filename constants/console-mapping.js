@@ -17,15 +17,15 @@ const CONSOLES = {
   NINTENDO_WII_U: 'wiiu',
   NINTENDO_DS: 'nds',
   NINTENDO_3DS: '3ds',
-  NINTENDO_VIRTUAL_BOY: 'vb',
+  NINTENDO_VIRTUAL_BOY: 'virtualboy',
   NINTENDO_SWITCH: 'switch',
 
   // Sony
-  SONY_PLAYSTATION: 'ps1',
+  SONY_PLAYSTATION: 'psx',
   SONY_PLAYSTATION_2: 'ps2',
   SONY_PLAYSTATION_3: 'ps3',
   SONY_PSP: 'psp',
-  SONY_PLAYSTATION_VITA: 'psvita',
+  SONY_PLAYSTATION_VITA: 'vita',
 
   // Sega
   SEGA_MASTER_SYSTEM: 'sms',
@@ -58,8 +58,8 @@ const CONSOLES = {
   COMMODORE_AMIGA: 'amiga',
 
   // Others
-  BANDAI_WONDERSWAN: 'wonderswan',
-  BANDAI_WONDERSWAN_COLOR: 'wonderswancolor',
+  BANDAI_WONDERSWAN: 'ws',
+  BANDAI_WONDERSWAN_COLOR: 'wsc',
   GCE_VECTREX: 'vectrex',
   MAGNAVOX_ODYSSEY_2: 'odyssey2'
 }
