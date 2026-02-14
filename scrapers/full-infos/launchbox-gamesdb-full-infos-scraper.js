@@ -18,13 +18,17 @@ const CONSOLE_MAPPINGS = {
   [CONSOLES.NINTENDO_DS]: "26-nintendo-ds",
   [CONSOLES.NINTENDO_3DS]: "24-nintendo-3ds",
   [CONSOLES.NINTENDO_VIRTUAL_BOY]: "32-nintendo-virtual-boy",
-  [CONSOLES.NINTENDO_SWITCH]: "211-nintendo-switch",
+  [CONSOLES.NINTENDO_SWITCH]: "211-nintendo-switch", 
   // Sony Consoles
   [CONSOLES.SONY_PLAYSTATION]: "47-sony-playstation",
   [CONSOLES.SONY_PLAYSTATION_2]: "48-sony-playstation-2",
   [CONSOLES.SONY_PLAYSTATION_3]: "49-sony-playstation-3",
   [CONSOLES.SONY_PSP]: "52-sony-psp",
   [CONSOLES.SONY_PLAYSTATION_VITA]: "51-sony-playstation-vita",
+
+  // Microsoft Consoles
+  [CONSOLES.XBOX]: "18-microsoft-xbox",
+  [CONSOLES.XBOX_360]: "19-microsoft-xbox-360",
 
   // Sega Consoles
   [CONSOLES.SEGA_MASTER_SYSTEM]: "43-sega-master-system",
@@ -57,6 +61,7 @@ const CONSOLE_MAPPINGS = {
   [CONSOLES.COMMODORE_AMIGA]: "2-commodore-amiga",
 
   //OTHERS
+  [CONSOLES.WINDOWS]: "84-windows",
   [CONSOLES.BANDAI_WONDERSWAN]: "55-wonderswan",
   [CONSOLES.BANDAI_WONDERSWAN_COLOR]: "56-wonderswan-color",
   [CONSOLES.GCE_VECTREX]: "125-gce-vectrex",
@@ -115,13 +120,15 @@ async function Scrape(consoleSlug) {
     console.error(`launchbox-gamesdb: ✘ Console slug '${consoleSlug}' not supported.`);
     return null;
   }
-  const result = {
+  try{
+     const result = {
     console: {
       name: "",
       slug: "",
       logoUrl: CONSOLE_LOGOS[consoleSlug],
       description: "",
     },
+    sourceName: "",
     games: [],
   };
   const $ = await getHtml(`${BASE}/${CONSOLE_MAPPINGS[consoleSlug]}`);
@@ -142,13 +149,17 @@ async function Scrape(consoleSlug) {
       }
     }
   });
-
   for (let p = 1; p <= lastPage; p++) {
     console.log(`launchbox-gamesdb: Scraping page ${p} for console '${consoleSlug}'...`);
     result.games.push(...(await scrapePage(consoleSlug, p)));
   }
 
   return result;
+  }catch(err){
+    console.error(`launchbox-gamesdb: ✘ Error scraping console '${consoleSlug}': ${err.message}`);
+    return null;
+  }
+ 
 }
 
 module.exports = {

@@ -127,6 +127,24 @@ const SCRAPERS_SETTINGS = {
   },
 
   // ================================
+  //  Microsoft
+  // ================================
+ [CONSOLES.XBOX]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+
+  [CONSOLES.XBOX_360]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+
+  [CONSOLES.WINDOWS]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+
+  // ================================
   // 🟠 SEGA
   // ================================
 
@@ -263,10 +281,14 @@ async function run() {
   var args = process.argv.slice(2);
   const shouldScrapeIntents = args.some((arg) => arg.includes("--intents"));
   const shouldSkipCache = args.some((arg) => arg.includes("--skip-cache"));
+  let sourceName = args.find((arg) => arg.startsWith("--name="));
   const allowedConsolesStr = args.find((arg) => arg.startsWith("--consoles="));
   let allowedConsoleList = [];
   if (allowedConsolesStr) {
     allowedConsoleList = allowedConsolesStr.replace("--consoles=", "").split(",");
+  }
+  if(sourceName){
+    sourceName = sourceName.split("=")[1];
   }
   if (shouldScrapeIntents) {
     console.log("Main scraper: Retrieving intents");
@@ -366,6 +388,7 @@ async function run() {
     const outFile = path.join(infosPath, `${consoleSlug}.json`);
     await fs.writeJson(outFile, {
       console: allInfos.console,
+      sourceName: sourceName ?? allInfos.console.name,
       games: enrichedGames,
     });
     console.log(`Main scraper: ✔ Saved enriched data for console slug: ${consoleSlug} to ${outFile}`);
