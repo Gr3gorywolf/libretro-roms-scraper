@@ -2,247 +2,193 @@ require("dotenv").config();
 const fs = require("fs-extra");
 const path = require("path");
 const { normalizeString, wordSimilarity } = require("./utils/utils");
-const { LocalScrapeInfos, WikipediaScrapeInfos, RetroCatalogsInfos } = require("./scrapers/infos");
-const { LibretroScrapeCovers, NswpediaScrapeCovers, PushSquareCovers } = require("./scrapers/covers");
+const {
+  LocalScrapeInfos,
+  WikipediaScrapeInfos,
+  RetroCatalogsInfos,
+} = require("./scrapers/infos");
+const {
+  LibretroScrapeCovers,
+  NswpediaScrapeCovers,
+  PushSquareCovers,
+} = require("./scrapers/covers");
 const { CONSOLES } = require("./constants/console-mapping");
 const { CONSOLE_LOGOS } = require("./constants/console-logos");
 const { LaunchboxGamesDBFullInfos } = require("./scrapers/full-infos");
 const { DaijishowScrapeIntents } = require("./scrapers/intents");
 
 const SCRAPERS_SETTINGS = {
-  // ================================
-  // 🟢 NINTENDO
-  // ================================
-
-  // NES — Nintendo (1983/1985)
-  [CONSOLES.NINTENDO_NES]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Game Boy — Nintendo (1989)
+  [CONSOLES.NINTENDO_NES]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
   [CONSOLES.NINTENDO_GAME_BOY]: {
-   covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Super Nintendo — Nintendo (1990)
-  [CONSOLES.NINTENDO_SNES]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // Virtual Boy — Nintendo (1995)
+  [CONSOLES.NINTENDO_SNES]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
   [CONSOLES.NINTENDO_VIRTUAL_BOY]: {
-   covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Nintendo 64 — Nintendo (1996)
-  [CONSOLES.NINTENDO_64]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // Game Boy Color — Nintendo (1998)
+  [CONSOLES.NINTENDO_64]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
   [CONSOLES.NINTENDO_GAME_BOY_COLOR]: {
-     covers: [],
+    covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // Game Boy Advance — Nintendo (2001)
   [CONSOLES.NINTENDO_GAME_BOY_ADVANCE]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // GameCube — Nintendo (2001)
   [CONSOLES.NINTENDO_GAMECUBE]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // Nintendo DS — Nintendo (2004)
-  [CONSOLES.NINTENDO_DS]: {
-   covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Wii — Nintendo (2006)
-  [CONSOLES.NINTENDO_WII]: {
-     covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Nintendo 3DS — Nintendo (2011)
-  [CONSOLES.NINTENDO_3DS]: {
-     covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Wii U — Nintendo (2012)
-  [CONSOLES.NINTENDO_WII_U]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Switch — Nintendo (2017)
+  [CONSOLES.NINTENDO_DS]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.NINTENDO_WII]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.NINTENDO_3DS]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.NINTENDO_WII_U]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
   [CONSOLES.NINTENDO_SWITCH]: {
     covers: [NswpediaScrapeCovers],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // ================================
-  // 🔵 SONY / PLAYSTATION
-  // ================================
-
-  // PlayStation — Sony (1994)
-  [CONSOLES.SONY_PLAYSTATION]: {
-   covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // PlayStation 2 — Sony (2000)
-  [CONSOLES.SONY_PLAYSTATION_2]: {
-   covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // PSP — Sony (2004)
-  [CONSOLES.SONY_PSP]: {
+  [CONSOLES.NINTENDO_SATELLAVIEW]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // PlayStation 3 — Sony (2006)
-  [CONSOLES.SONY_PLAYSTATION_3]: {
-  covers: [],
+  [CONSOLES.NINTENDO_GAME_AND_WATCH]: {
+    covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
+  [CONSOLES.FAMICOM_DISK_SYSTEM]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.POKEMON_MINI]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
 
-  // PS Vita — Sony (2011)
+  [CONSOLES.SONY_PLAYSTATION]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.SONY_PLAYSTATION_2]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.SONY_PSP]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SONY_PLAYSTATION_3]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
   [CONSOLES.SONY_PLAYSTATION_VITA]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
+  [CONSOLES.SONY_PSP_MINIS]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
 
-  // ================================
-  //  Microsoft
-  // ================================
- [CONSOLES.XBOX]: {
+  [CONSOLES.XBOX]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.XBOX_360]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.WINDOWS]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+
+  [CONSOLES.SEGA_GENESIS]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SEGA_GAME_GEAR]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SEGA_32X]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SEGA_SATURN]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SEGA_DREAMCAST]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SEGA_MASTER_SYSTEM]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
+  [CONSOLES.SEGA_SG_1000]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SEGA_NAOMI]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SEGA_MODEL_3]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SEGA_PICO]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.TRIFORCE]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ATOMISWAVE]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
 
-  [CONSOLES.XBOX_360]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  [CONSOLES.WINDOWS]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // ================================
-  // 🟠 SEGA
-  // ================================
-
-  // Sega Genesis / Mega Drive (1988)
-  [CONSOLES.SEGA_GENESIS]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Game Gear (1990)
-  [CONSOLES.SEGA_GAME_GEAR]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // 32X (1994)
-  [CONSOLES.SEGA_32X]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Saturn (1994)
-  [CONSOLES.SEGA_SATURN]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Dreamcast (1998/1999)
-  [CONSOLES.SEGA_DREAMCAST]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // ================================
-  // 🔴 SNK
-  // ================================
-
-  // Neo Geo AES (1990)
-  [CONSOLES.SNK_NEO_GEO]: {
-    covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Neo Geo Pocket (1998)
+  [CONSOLES.SNK_NEO_GEO]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
   [CONSOLES.SNK_NEO_GEO_POCKET]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // Neo Geo Pocket Color (1999)
   [CONSOLES.SNK_NEO_GEO_POCKET_COLOR]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
+  [CONSOLES.NEO_GEO_CD]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
 
-  // ================================
-  // 🟡 BANDAI
-  // ================================
-
-  // WonderSwan (1999)
   [CONSOLES.BANDAI_WONDERSWAN]: {
-     covers: [],
+    covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // WonderSwan Color (2000)
   [CONSOLES.BANDAI_WONDERSWAN_COLOR]: {
-   covers: [],
+    covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
 
-  // ================================
-  // 🟤 COMMODORE
-  // ================================
-
-  // Commodore 64 (1982)
-  [CONSOLES.COMMODORE_64]: {
-   covers: [],
-    infos: [LaunchboxGamesDBFullInfos],
-  },
-
-  // Amiga (1985)
+  [CONSOLES.COMMODORE_64]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
   [CONSOLES.COMMODORE_AMIGA]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
-
-  // ================================
-  // ⚫ OTHERS
-  // ================================
-
-  // Vectrex — GCE (1982)
-  [CONSOLES.GCE_VECTREX]: {
+  [CONSOLES.COMMODORE_PET]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.COMMODORE_PLUS_4]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
   },
+  [CONSOLES.VIC_20]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
 
-  // Magnavox Odyssey² — Magnavox/Philips (1978)
+  [CONSOLES.THREE_DO]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.AMSTRAD_CPC]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.APPLE_II]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ARCADIA_2001]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ARDUBOY]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ATARI_2600]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ATARI_5200]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ATARI_7800]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ATARI_JAGUAR]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ATARI_LYNX]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ATARI_ST]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ATARI_JAGUAR_CD]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.TURBOGRAFX_16]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.TURBOGRAFX_CD]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SUPERGRAFX]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.NEC_PC_FX]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.NEC_PC_88]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.NEC_PC_98]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.COLECOVISION]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.INTELLIVISION]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.FAIRCHILD_CHANNEL_F]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.ACORN_BBC_MICRO]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.MSX]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.DOS]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.INTERTON_VC_4000]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.MEGA_DUCK]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ELEKTOR_TV_GAMES_COMPUTER]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.PHILIPS_CD_I]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SCUMMVM]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SHARP_X1]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.SHARP_X68000]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.UZEBOX]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.WASM_4]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.WATARA_SUPERVISION]: {
+    covers: [],
+    infos: [LaunchboxGamesDBFullInfos],
+  },
+  [CONSOLES.ZX_81]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.ZX_SPECTRUM]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
+  [CONSOLES.GCE_VECTREX]: { covers: [], infos: [LaunchboxGamesDBFullInfos] },
   [CONSOLES.MAGNAVOX_ODYSSEY_2]: {
     covers: [],
     infos: [LaunchboxGamesDBFullInfos],
@@ -257,7 +203,9 @@ function findBestCover(romCovers, normalizedTitle, threshold = 0.8) {
 
   for (const cover of romCovers) {
     const coverTitle = normalizeString(cover.title || cover.normalizedTitle);
-    const lengthRatio = Math.min(title.length, coverTitle.length) / Math.max(title.length, coverTitle.length);
+    const lengthRatio =
+      Math.min(title.length, coverTitle.length) /
+      Math.max(title.length, coverTitle.length);
     if (lengthRatio < 0.6) continue;
 
     const wordScore = wordSimilarity(title, coverTitle);
@@ -275,9 +223,11 @@ async function run() {
   const coversPath = path.join(__dirname, "output", "covers");
   const infosPath = path.join(__dirname, "output", "infos");
   const intentsPath = path.join(__dirname, "output", "intents");
+  const retroarchPath = path.join(__dirname, "output", "retroarch");
   await fs.mkdirSync(infosPath, { recursive: true });
   await fs.mkdirSync(coversPath, { recursive: true });
   await fs.mkdirSync(intentsPath, { recursive: true });
+  await fs.mkdirSync(retroarchPath, { recursive: true });
   var args = process.argv.slice(2);
   const shouldScrapeIntents = args.some((arg) => arg.includes("--intents"));
   const shouldSkipCache = args.some((arg) => arg.includes("--skip-cache"));
@@ -285,21 +235,27 @@ async function run() {
   const allowedConsolesStr = args.find((arg) => arg.startsWith("--consoles="));
   let allowedConsoleList = [];
   if (allowedConsolesStr) {
-    allowedConsoleList = allowedConsolesStr.replace("--consoles=", "").split(",");
+    allowedConsoleList = allowedConsolesStr
+      .replace("--consoles=", "")
+      .split(",");
   }
-  if(sourceName){
+  if (sourceName) {
     sourceName = sourceName.split("=")[1];
   }
   if (shouldScrapeIntents) {
     console.log("Main scraper: Retrieving intents");
     var intentsFile = await DaijishowScrapeIntents.Scrape();
     console.log("Main scraper: Saving intents");
-    await fs.writeJson(intentsPath + "/daijishou-intents.json", intentsFile);
+    await fs.writeJson(intentsPath + "/daijishou-intents.json", intentsFile.results);
+    await fs.writeJson(retroarchPath + "/retroarch-cores.json", intentsFile.retroarchCores);
     return;
   }
 
   for (const consoleSlug of Object.keys(SCRAPERS_SETTINGS)) {
-    if (allowedConsoleList.length > 0 && !allowedConsoleList.includes(consoleSlug)) {
+    if (
+      allowedConsoleList.length > 0 &&
+      !allowedConsoleList.includes(consoleSlug)
+    ) {
       continue;
     }
     const consoleSettings = SCRAPERS_SETTINGS[consoleSlug];
@@ -324,7 +280,11 @@ async function run() {
       for (const scraper of coverScrapers) {
         const covers = await scraper.Scrape(consoleSlug);
         if (!covers || covers.length === 0) {
-          console.warn(`Main scraper: ⚠ No covers found for console slug: ${consoleSlug} on scraper ${scraper.meta?.name || "unknown"}`);
+          console.warn(
+            `Main scraper: No covers found for console slug: ${consoleSlug} on scraper ${
+              scraper.meta?.name || "unknown"
+            }`
+          );
           continue;
         }
         for (const cover of covers) {
@@ -335,12 +295,22 @@ async function run() {
         }
       }
       await fs.writeJson(coverFileName, allCovers);
-      console.log(`Main scraper: ✔ Retrieved ${Object.keys(allCovers).length} covers for console slug: ${consoleSlug} ${useCache ? "(from cache)" : ""}`);
+      console.log(
+        `Main scraper: Retrieved ${
+          Object.keys(allCovers).length
+        } covers for console slug: ${consoleSlug} ${
+          useCache ? "(from cache)" : ""
+        }`
+      );
     }
     for (const scraper of infoScrapers) {
       const infos = await scraper.Scrape(consoleSlug);
       if (!infos || !infos?.games || infos?.games?.length === 0) {
-        console.warn(`Main scraper: ⚠ No infos found for console slug: ${consoleSlug} on scraper ${scraper.meta?.name || "unknown"}`);
+        console.warn(
+          `Main scraper: No infos found for console slug: ${consoleSlug} on scraper ${
+            scraper.meta?.name || "unknown"
+          }`
+        );
         continue;
       }
       if (infos.console && !allInfos.console) {
@@ -358,27 +328,46 @@ async function run() {
           allGames[key] = {
             ...prevGame,
             ...game,
-            ...(!prevGame.portrait && game.portrait ? { portrait: game.portrait } : {}),
+            ...(!prevGame.portrait && game.portrait
+              ? { portrait: game.portrait }
+              : {}),
           };
         }
       }
     }
     allInfos.games = Object.values(allGames);
-    console.log(`Main scraper: ✔ Retrieved ${allInfos.games.length} infos for console slug: ${consoleSlug}`);
+    console.log(
+      `Main scraper: Retrieved ${allInfos.games.length} infos for console slug: ${consoleSlug}`
+    );
     let enrichedGames = allInfos.games;
     if (coverScrapers.length > 0) {
       enrichedGames = allInfos.games.map((game) => {
-        const bestCover = findBestCover(Object.values(allCovers), normalizeString(game.name), 0.7);
-        const bestCoverPortrait = bestCover ? bestCover.portrait || bestCover.image || null : null;
+        const bestCover = findBestCover(
+          Object.values(allCovers),
+          normalizeString(game.name),
+          0.7
+        );
+        const bestCoverPortrait = bestCover
+          ? bestCover.portrait || bestCover.image || null
+          : null;
         const bestCoverLogo = bestCover ? bestCover.logo || null : null;
-        const bestCoverTitleImage = bestCover ? bestCover.title_image || null : null;
-        const bestCoverGameplay = bestCover && bestCover.gameplay_covers && bestCover.gameplay_covers.length > 0 ? bestCover.gameplay_covers : [];
+        const bestCoverTitleImage = bestCover
+          ? bestCover.title_image || null
+          : null;
+        const bestCoverGameplay =
+          bestCover &&
+          bestCover.gameplay_covers &&
+          bestCover.gameplay_covers.length > 0
+            ? bestCover.gameplay_covers
+            : [];
         return {
           ...game,
-          portrait:game.portrait ??  bestCoverPortrait,
-          logo:game.logo ?? bestCoverLogo,
+          portrait: game.portrait ?? bestCoverPortrait,
+          logo: game.logo ?? bestCoverLogo,
           titleImage: game.titleImage ?? bestCoverTitleImage,
-          gameplayCovers:game.gameplayCovers.length ? game.gameplayCovers : bestCoverGameplay,
+          gameplayCovers: game.gameplayCovers.length
+            ? game.gameplayCovers
+            : bestCoverGameplay,
         };
       });
     }
@@ -391,7 +380,9 @@ async function run() {
       sourceName: sourceName ?? allInfos.console.name,
       games: enrichedGames,
     });
-    console.log(`Main scraper: ✔ Saved enriched data for console slug: ${consoleSlug} to ${outFile}`);
+    console.log(
+      `Main scraper: Saved enriched data for console slug: ${consoleSlug} to ${outFile}`
+    );
   }
 }
 

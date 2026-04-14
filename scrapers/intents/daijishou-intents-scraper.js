@@ -46,7 +46,10 @@ function parseAmArguments(am) {
       //patch for ./ activities
       let activityPart = `${pkg}/.`;
       if (payload.activity?.startsWith(activityPart)) {
-        payload.activity = `${pkg}/${pkg}.${payload.activity.replace(activityPart, "")}`;
+        payload.activity = `${pkg}/${pkg}.${payload.activity.replace(
+          activityPart,
+          ""
+        )}`;
       }
     }
 
@@ -84,7 +87,9 @@ function build(fileContent) {
 
   for (const player of json.playerList) {
     const parsed = parseAmArguments(player.amStartArguments);
-    const requireExtraction = !VALID_COMPRESSED_EXTENSIONS.some((ext) => player.acceptedFilenameRegex.includes(ext));
+    const requireExtraction = !VALID_COMPRESSED_EXTENSIONS.some((ext) =>
+      player.acceptedFilenameRegex.includes(ext)
+    );
     result[platformId].push({
       uniqueId: player.uniqueId,
       package: parsed.package,
@@ -102,20 +107,45 @@ function build(fileContent) {
   return result;
 }
 
+async function scrapeRetroarchCores(results) {
+  const retroarchCores = {};
+  for (const platform of Object.keys(results)) {
+    for (const intent of results[platform]) {
+      if (intent.package.includes("com.retroarch")) {
+        const existingCores = retroarchCores[platform] || [];
+        const core = intent.extras.LIBRETRO;
+        if (core && !existingCores.includes(core)) {
+          retroarchCores[platform] = [...existingCores, intent.extras.LIBRETRO];
+        }
+      }
+    }
+  }
+  return retroarchCores;
+}
+
 async function Scrape() {
-  const platformsThree = await gh(`https://api.github.com/repos/${OWNER}/${ROOT_REPO}/contents/platforms?ref=main`);
+  const platformsThree = await gh(
+    `https://api.github.com/repos/${OWNER}/${ROOT_REPO}/contents/platforms?ref=main`
+  );
   console.log("platformsThree:", platformsThree);
   const forbiddenFiles = [".py", "index.json"];
   var results = {};
   for (const platform of platformsThree) {
     if (forbiddenFiles.some((ext) => platform.name.endsWith(ext))) continue;
-    const fileContent = await gh(`https://api.github.com/repos/${OWNER}/${ROOT_REPO}/contents/platforms/${platform.name}?ref=main`);
+    const fileContent = await gh(
+      `https://api.github.com/repos/${OWNER}/${ROOT_REPO}/contents/platforms/${platform.name}?ref=main`
+    );
     const buff = Buffer.from(fileContent.content, "base64");
     const text = buff.toString("utf-8");
     results = { ...results, ...build(text) };
   }
+
   console.log("results:", results);
-  return results;
+  const cores = await scrapeRetroarchCores(results);
+  return {
+    results,
+    retroarchCores: cores,
+  };
 }
 
 module.exports = {
